@@ -10,7 +10,4 @@ public class BikeChatApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BikeChatApplication.class, args);
 	}
-
-	User user = new User((long) 1, "testUsername", "test@email", "@fgq", "someUrl", "hello");
-
 }

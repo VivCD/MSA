@@ -1,8 +1,11 @@
 package com.example.BikeChat.User;
 
 import com.example.BikeChat.Firebase.FirebaseService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/users")
 public class UserController {
     private final FirebaseService firebaseService;
 
@@ -11,8 +14,13 @@ public class UserController {
     }
 
     @PostMapping
-    public void createUser(@RequestBody User user){
-        firebaseService.saveUser(user);
+    public ResponseEntity<String> createUser(@RequestBody User user){
+        try {
+            firebaseService.saveUser(user);
+            return ResponseEntity.ok("User successfully created and saved.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error saving user: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
