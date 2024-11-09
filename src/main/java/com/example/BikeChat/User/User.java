@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 public class User {
 
     @DocumentId
-    private Long userID;
+    private String userID;
     @Property
     private String username;
     @Property
@@ -25,7 +25,7 @@ public class User {
 
 
 
-    public User(Long userID, String username, String email, String passwordHash, String profilePictureUrl, String bio){
+    public User(String userID, String username, String email, String passwordHash, String profilePictureUrl, String bio){
         this.userID = userID;
         this.username = username;
         this.email = email;
@@ -35,11 +35,11 @@ public class User {
     }
 
 
-    public Long getUserID() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUserID(Long userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
 

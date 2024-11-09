@@ -10,7 +10,6 @@ import com.google.cloud.firestore.WriteResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.Document;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -18,6 +17,22 @@ public class FirebaseService {
 
     @Autowired
     private Firestore firestore;
+
+    public FirebaseService(Firestore firestore) {
+        this.firestore = firestore;
+    }
+
+    public void addUser(User user) {
+        DocumentReference docRef = firestore.collection("users").document(String.valueOf(user.getUserID()));
+        ApiFuture<WriteResult> writeResult = docRef.set(user);
+        try {
+            // Wait for the result to confirm success and print it
+            WriteResult result = writeResult.get();
+            System.out.println("User added successfully at " + result.getUpdateTime());
+        } catch (Exception e) {
+            System.err.println("Error adding user: " + e.getMessage());
+        }
+    }
 
 
     public void saveUser(User user){
