@@ -19,14 +19,36 @@ public class UserController {
     public ResponseEntity<String> createUser(@RequestBody User user) {
         try {
 
-            String hashedPassword = userService.encryptUserPassword(user.getPassword());
-            user.setPasswordHash(hashedPassword);
-            user.setPassword(null);
+            if(userService.isUsernameAvailable(user.getUsername())) {
 
-            userService.saveUser(user);
-            return ResponseEntity.ok("User successfully created and saved.");
+                String hashedPassword = userService.encryptUserPassword(user.getPassword());
+                user.setPasswordHash(hashedPassword);
+                user.setPassword(null);
+
+                userService.saveUser(user);
+                return ResponseEntity.ok("User successfully created and saved.");
+            }else
+                return ResponseEntity.status(401).body("Username is not available");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error saving user: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest){
+        try{
+            String username = loginRequest.getUsername();
+            String password = loginRequest.getPassword();
+
+            boolean isAuthenticated = userService.authenticateUser(username, password);
+
+            if (isAuthenticated) {
+                return ResponseEntity.ok("User logged in successfully.");
+            } else {
+                return ResponseEntity.status(401).body("Invalid username or password.");
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(500).body("Login failed: " + e.getMessage());
         }
     }
 
