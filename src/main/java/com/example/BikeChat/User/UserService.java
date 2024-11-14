@@ -4,9 +4,8 @@ import com.example.BikeChat.Firebase.FirebaseService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class UserService {
@@ -21,7 +20,7 @@ public class UserService {
     }
 
     public User getUser(String id) {
-        return firebaseService.getUser(id);
+        return firebaseService.getUserByID(id);
     }
 
     public List<User> getAllUsers(){
@@ -30,11 +29,37 @@ public class UserService {
 
     public String encryptUserPassword(String password){
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(password);
-        System.out.println("password hash:" + hashedPassword );
 
-        return hashedPassword;
+        return passwordEncoder.encode(password);
+    }
 
+    public boolean isUsernameAvailable(String username){
+        if(verifyUsername(username) == null)
+            return true;
+        return false;
+    }
+
+
+    private User verifyUsername(String username){
+        List<User> allUsers = new ArrayList<>();
+        allUsers = getAllUsers();
+
+        for(User u : allUsers)
+            if(username.equals(u.getUsername()))
+                return u;
+        return null;
+    }
+    private boolean verifyPassword(String rawPassword, String hashedPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.matches(rawPassword, hashedPassword);
+    }
+
+    public boolean authenticateUser(String username, String password) {
+        User user = verifyUsername(username);
+        if (user == null) {
+            return false; // Username not found
+        }
+        return verifyPassword(password, user.getPasswordHash()); // Check password
     }
 
 }
