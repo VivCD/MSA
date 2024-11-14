@@ -9,5 +9,6 @@ public class BikeChatApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BikeChatApplication.class, args);
+
 	}
 }

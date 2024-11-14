@@ -42,7 +42,7 @@ public class FirebaseService {
 
     }
 
-    public User getUser(String userID){
+    public User getUserByID(String userID){
         DocumentReference docRef = firestore.collection("users").document(userID);
         ApiFuture<DocumentSnapshot> future = docRef.get();
 
