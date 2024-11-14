@@ -3,6 +3,7 @@ package com.example.BikeChat.User;
 import com.example.BikeChat.Firebase.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,11 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> createUser(@RequestBody User user) {
         try {
+
+            String hashedPassword = userService.encryptUserPassword(user.getPassword());
+            user.setPasswordHash(hashedPassword);
+            user.setPassword(null);
+
             userService.saveUser(user);
             return ResponseEntity.ok("User successfully created and saved.");
         } catch (Exception e) {
