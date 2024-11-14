@@ -3,13 +3,12 @@ package com.example.BikeChat.Firebase;
 import com.example.BikeChat.User.User;
 import com.example.CustomExceptions.UserNotFoundException;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -58,6 +57,25 @@ public class FirebaseService {
         }catch (InterruptedException | ExecutionException e){
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public List<User> getAllUsers(){
+        List<User> users = new ArrayList<>();
+        CollectionReference usersCollection = firestore.collection("users");
+
+        ApiFuture<QuerySnapshot> future = usersCollection.get();
+
+        try {
+            QuerySnapshot querySnapshot = future.get();
+            for(QueryDocumentSnapshot document : querySnapshot){
+                User user = document.toObject(User.class);
+                users.add(user);
+            }
+            return users;
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 }
