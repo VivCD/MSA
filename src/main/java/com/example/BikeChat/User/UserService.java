@@ -1,6 +1,7 @@
 package com.example.BikeChat.User;
 
 import com.example.BikeChat.Firebase.FirebaseService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -25,6 +26,15 @@ public class UserService {
 
     public List<User> getAllUsers(){
         return firebaseService.getAllUsers();
+    }
+
+    public String encryptUserPassword(String password){
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(password);
+        System.out.println("password hash:" + hashedPassword );
+
+        return hashedPassword;
+
     }
 
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 public class User {
@@ -16,6 +17,11 @@ public class User {
     private String username;
     @Property
     private String email;
+
+
+
+    @Property
+    private String password;
     @Property
     private String passwordHash;
     @Property
@@ -27,11 +33,11 @@ public class User {
     public User() {
     }
 
-    public User(String userID, String username, String email, String passwordHash, String profilePictureUrl, String bio){
+    public User(String userID, String username, String email, String password, String profilePictureUrl, String bio){
         this.userID = userID;
         this.username = username;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.profilePictureUrl = profilePictureUrl;
         this.bio = bio;
     }
@@ -59,6 +65,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPasswordHash() {
