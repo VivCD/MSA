@@ -24,6 +24,8 @@ public class User {
     private String bio;
 
 
+    public User() {
+    }
 
     public User(String userID, String username, String email, String passwordHash, String profilePictureUrl, String bio){
         this.userID = userID;

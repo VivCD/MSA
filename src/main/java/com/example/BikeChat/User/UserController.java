@@ -1,22 +1,23 @@
 package com.example.BikeChat.User;
 
 import com.example.BikeChat.Firebase.FirebaseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final FirebaseService firebaseService;
+    @Autowired
+    private UserService userService;
 
-    public UserController(FirebaseService firebaseService) {
-        this.firebaseService = firebaseService;
-    }
-
-    @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody User user){
+    @PostMapping("/register")
+    public ResponseEntity<String> createUser(@RequestBody User user) {
         try {
-            firebaseService.saveUser(user);
+            userService.saveUser(user);
             return ResponseEntity.ok("User successfully created and saved.");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error saving user: " + e.getMessage());
@@ -24,7 +25,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable String id){
-        return firebaseService.getUser(id);
+    public User getUser(@PathVariable String id) {
+        return userService.getUser(id);
+    }
+
+    @GetMapping("/all")
+    public List<User> getAllUsers(){
+        return userService.getAllUsers();
     }
 }
