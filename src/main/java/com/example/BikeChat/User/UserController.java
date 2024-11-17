@@ -34,6 +34,7 @@ public class UserController {
                 return ResponseEntity.status(400).body(new ApiResponse("Username is not available", false));
             }
 
+
             // Generate a unique userID if not provided
             if (user.getUserID() == null || user.getUserID().isEmpty()) {
                 user.setUserID(UUID.randomUUID().toString());
@@ -78,8 +79,38 @@ public class UserController {
             } else {
                 return ResponseEntity.status(401).body(new ApiResponse("Invalid username or password.", false));
             }
+
+            if(userService.isUsernameAvailable(user.getUsername())) {
+
+                String hashedPassword = userService.encryptUserPassword(user.getPassword());
+                user.setPasswordHash(hashedPassword);
+                user.setPassword(null);
+
+                userService.saveUser(user);
+                return ResponseEntity.ok("User successfully created and saved.");
+            }else
+                return ResponseEntity.status(401).body("Username is not available");
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Login failed: " + e.getMessage(), false));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest){
+        try{
+            String username = loginRequest.getUsername();
+            String password = loginRequest.getPassword();
+
+            boolean isAuthenticated = userService.authenticateUser(username, password);
+
+            if (isAuthenticated) {
+                return ResponseEntity.ok("User logged in successfully.");
+            } else {
+                return ResponseEntity.status(401).body("Invalid username or password.");
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(500).body("Login failed: " + e.getMessage());
         }
     }
 
