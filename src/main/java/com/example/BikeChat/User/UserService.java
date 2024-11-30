@@ -62,4 +62,12 @@ public class UserService {
         return verifyPassword(password, user.getPasswordHash()); // Check password
     }
 
+    public void sendFriendRequest(String userId, String friendId) throws Exception {
+        firebaseService.sendFriendRequest(userId, friendId);
+    }
+
+    public void acceptFriendRequest(String userId, String friendId) throws Exception {
+        firebaseService.acceptFriendRequest(userId, friendId);
+    }
+
 }

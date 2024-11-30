@@ -3,15 +3,9 @@ package com.example.BikeChat.User;
 import com.example.BikeChat.Firebase.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.google.firebase.auth.FirebaseToken;
-import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import com.example.BikeChat.User.ApiResponse;
 
 @RestController
 @RequestMapping("/users")
@@ -19,6 +13,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // Registration endpoint
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> createUser(@RequestBody User user) {
         try {
@@ -31,9 +26,8 @@ public class UserController {
 
             // Check if username is available
             if (!userService.isUsernameAvailable(user.getUsername())) {
-                return ResponseEntity.status(400).body(new ApiResponse("Username is not available", false));
+                return ResponseEntity.status(400).body(new ApiResponse("Username is not available.", false));
             }
-
 
             // Generate a unique userID if not provided
             if (user.getUserID() == null || user.getUserID().isEmpty()) {
@@ -65,62 +59,67 @@ public class UserController {
         }
     }
 
-
+    // Login endpoint
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> loginUser(@RequestBody LoginRequest loginRequest) {
         try {
-            String username = loginRequest.getUsername();
-            String password = loginRequest.getPassword();
+            // Validate required fields
+            if (loginRequest.getUsername() == null || loginRequest.getUsername().isEmpty() ||
+                    loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()) {
+                return ResponseEntity.status(400).body(new ApiResponse("Missing required fields (username, password).", false));
+            }
 
-            boolean isAuthenticated = userService.authenticateUser(username, password);
+            // Authenticate the user
+            boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
 
             if (isAuthenticated) {
                 return ResponseEntity.ok(new ApiResponse("User logged in successfully.", true));
             } else {
                 return ResponseEntity.status(401).body(new ApiResponse("Invalid username or password.", false));
             }
-
-            if(userService.isUsernameAvailable(user.getUsername())) {
-
-                String hashedPassword = userService.encryptUserPassword(user.getPassword());
-                user.setPasswordHash(hashedPassword);
-                user.setPassword(null);
-
-                userService.saveUser(user);
-                return ResponseEntity.ok("User successfully created and saved.");
-            }else
-                return ResponseEntity.status(401).body("Username is not available");
-
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Login failed: " + e.getMessage(), false));
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest){
-        try{
-            String username = loginRequest.getUsername();
-            String password = loginRequest.getPassword();
-
-            boolean isAuthenticated = userService.authenticateUser(username, password);
-
-            if (isAuthenticated) {
-                return ResponseEntity.ok("User logged in successfully.");
-            } else {
-                return ResponseEntity.status(401).body("Invalid username or password.");
-            }
-        }catch (Exception e) {
-            return ResponseEntity.status(500).body("Login failed: " + e.getMessage());
+    // Get user by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable String id) {
+        try {
+            User user = userService.getUser(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).build();
         }
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable String id) {
-        return userService.getUser(id);
+    // Get all users
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    @PostMapping("/{id}/sendRequest")
+    public ResponseEntity<ApiResponse> sendFriendRequest(@PathVariable String id, @RequestParam String friendId) {
+        try {
+            userService.sendFriendRequest(id, friendId);
+            return ResponseEntity.ok(new ApiResponse("Friend request sent.", true));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
+        }
     }
 
-    @GetMapping("/all")
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
+    @PostMapping("/{id}/acceptRequest")
+    public ResponseEntity<ApiResponse> acceptFriendRequest(@PathVariable String id, @RequestParam String friendId) {
+        try {
+            userService.acceptFriendRequest(id, friendId);
+            return ResponseEntity.ok(new ApiResponse("Friend request accepted.", true));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
+        }
     }
 }

@@ -78,4 +78,20 @@ public class FirebaseService {
             throw new RuntimeException(e);
         }
     }
+    public void sendFriendRequest(String senderId, String receiverId) {
+        DocumentReference receiverRef = firestore.collection("users").document(receiverId);
+        receiverRef.update("pendingRequests", FieldValue.arrayUnion(senderId));
+    }
+
+    public void acceptFriendRequest(String userId, String friendId) {
+        // Add to friends list
+        DocumentReference userRef = firestore.collection("users").document(userId);
+        DocumentReference friendRef = firestore.collection("users").document(friendId);
+
+        userRef.update("friends", FieldValue.arrayUnion(friendId));
+        friendRef.update("friends", FieldValue.arrayUnion(userId));
+
+        // Remove from pending requests
+        userRef.update("pendingRequests", FieldValue.arrayRemove(friendId));
+    }
 }

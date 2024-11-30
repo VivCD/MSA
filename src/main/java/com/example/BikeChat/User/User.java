@@ -8,6 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class User {
 
@@ -28,6 +31,13 @@ public class User {
     private String profilePictureUrl;
     @Property
     private String bio;
+
+    @Property
+    private List<String> friends = new ArrayList<>();
+
+    @Property
+    private List<String> pendingRequests = new ArrayList<>();
+
 
 
     public User() {
@@ -97,5 +107,22 @@ public class User {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    // Getters and Setters
+    public List<String> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<String> friends) {
+        this.friends = friends;
+    }
+
+    public List<String> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public void setPendingRequests(List<String> pendingRequests) {
+        this.pendingRequests = pendingRequests;
     }
 }
