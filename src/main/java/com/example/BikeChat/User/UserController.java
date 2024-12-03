@@ -1,6 +1,6 @@
 package com.example.BikeChat.User;
 
-import com.example.BikeChat.Firebase.FirebaseService;
+import com.example.BikeChat.APIResponse.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -105,23 +105,43 @@ public class UserController {
             return ResponseEntity.status(500).build();
         }
     }
-    @PostMapping("/{id}/sendRequest")
-    public ResponseEntity<ApiResponse> sendFriendRequest(@PathVariable String id, @RequestParam String friendId) {
+    @PostMapping("/{username}/sendRequest")
+    public ResponseEntity<ApiResponse> sendFriendRequest(@PathVariable String username, @RequestParam String friendUsername) {
         try {
-            userService.sendFriendRequest(id, friendId);
+            userService.sendFriendRequest(username, friendUsername);
             return ResponseEntity.ok(new ApiResponse("Friend request sent.", true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
         }
     }
 
-    @PostMapping("/{id}/acceptRequest")
-    public ResponseEntity<ApiResponse> acceptFriendRequest(@PathVariable String id, @RequestParam String friendId) {
+    @PostMapping("/{whoAccepts}/acceptRequest")
+    public ResponseEntity<ApiResponse> acceptFriendRequest(@RequestParam String usernameWhoSends, @PathVariable String whoAccepts) {
         try {
-            userService.acceptFriendRequest(id, friendId);
+            userService.acceptFriendRequest(usernameWhoSends, whoAccepts);
             return ResponseEntity.ok(new ApiResponse("Friend request accepted.", true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
+        }
+    }
+
+    @PostMapping("/{friendWhoDeletes}/deleteFriend")
+    public ResponseEntity<ApiResponse> deleteFriend(@PathVariable String friendWhoDeletes, @RequestParam String friendToBeDeleted){
+        try{
+            userService.deleteFriend(friendWhoDeletes, friendToBeDeleted);
+            return ResponseEntity.ok(new ApiResponse("Friend deleted.", true));
+        } catch (Exception e){
+            return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
+        }
+    }
+
+    @GetMapping("/getFriendsList")
+    public ResponseEntity<List<String>> getFriendsList(@RequestParam String usernameWhoRequestsList) {
+        try {
+            List<String> friends = userService.returnFriendsList(usernameWhoRequestsList);
+            return ResponseEntity.ok(friends);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 }

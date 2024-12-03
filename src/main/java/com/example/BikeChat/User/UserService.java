@@ -1,6 +1,6 @@
 package com.example.BikeChat.User;
 
-import com.example.BikeChat.Firebase.FirebaseService;
+import com.example.BikeChat.Firebase.FirebaseUserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -9,22 +9,22 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private final FirebaseService firebaseService;
+    private final FirebaseUserService firebaseUserService;
 
-    public UserService(FirebaseService firebaseService) {
-        this.firebaseService = firebaseService;
+    public UserService(FirebaseUserService firebaseUserService) {
+        this.firebaseUserService = firebaseUserService;
     }
 
     public void saveUser(User user) throws Exception {
-        firebaseService.saveUser(user);
+        firebaseUserService.saveUser(user);
     }
 
     public User getUser(String id) {
-        return firebaseService.getUserByID(id);
+        return firebaseUserService.getUserByID(id);
     }
 
     public List<User> getAllUsers(){
-        return firebaseService.getAllUsers();
+        return firebaseUserService.getAllUsers();
     }
 
     public String encryptUserPassword(String password){
@@ -62,12 +62,20 @@ public class UserService {
         return verifyPassword(password, user.getPasswordHash()); // Check password
     }
 
-    public void sendFriendRequest(String userId, String friendId) throws Exception {
-        firebaseService.sendFriendRequest(userId, friendId);
+    public void sendFriendRequest(String senderUsername, String receiverUsername) throws Exception {
+        firebaseUserService.sendFriendRequest(senderUsername, receiverUsername);
     }
 
-    public void acceptFriendRequest(String userId, String friendId) throws Exception {
-        firebaseService.acceptFriendRequest(userId, friendId);
+    public void acceptFriendRequest(String senderUsername, String receiverUsername) throws Exception {
+        firebaseUserService.acceptFriendRequest(senderUsername, receiverUsername);
+    }
+
+    public void deleteFriend(String friendWhoDeletes, String friendWhoIsDeleted) throws Exception{
+        firebaseUserService.removeFriend(friendWhoDeletes, friendWhoIsDeleted);
+    }
+
+    public List<String> returnFriendsList(String username) throws Exception{
+        return firebaseUserService.returnFriendsList(username);
     }
 
 }
