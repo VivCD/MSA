@@ -15,6 +15,7 @@ import java.util.List;
 public class User {
 
     @DocumentId
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String userID;
     @Property
     private String username;
