@@ -38,4 +38,16 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
     }
+
+    @PostMapping("/leaveGroup")
+    public ResponseEntity<String> leaveGroup(@RequestParam String groupID, @RequestParam String userID){
+        try{
+            groupService.leaveGroup(groupID, userID);
+            return ResponseEntity.status(HttpStatus.OK).body("Group left successfully!");
+        } catch (InvalidGroupDetailsException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (RuntimeException ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+        }
+    }
 }

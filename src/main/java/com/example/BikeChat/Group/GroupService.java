@@ -34,6 +34,12 @@ public class GroupService {
         futureCheckerForWriteResults(future);
     }
 
+    public void leaveGroup(String groupID, String userID){
+        DocumentReference groupDocumentReference = getGroupByID(groupID);
+        ApiFuture<WriteResult> future = groupDocumentReference.update("participantsID", FieldValue.arrayRemove(userID));
+        futureCheckerForWriteResults(future);
+    }
+
 
 
     private DocumentReference getGroupByID(String groupID){
