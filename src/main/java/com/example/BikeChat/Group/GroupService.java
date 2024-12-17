@@ -1,12 +1,15 @@
 package com.example.BikeChat.Group;
 
 import com.example.CustomExceptions.InvalidGroupDetailsException;
-import com.google.api.client.util.DateTime;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -29,20 +32,21 @@ public class GroupService {
     }
 
     public void joinGroup(String groupID, String userID){
-        DocumentReference groupDocumentReference = getGroupByID(groupID);
+        DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
         ApiFuture<WriteResult> future = groupDocumentReference.update("participantsID", FieldValue.arrayUnion(userID));
         futureCheckerForWriteResults(future);
     }
 
     public void leaveGroup(String groupID, String userID){
-        DocumentReference groupDocumentReference = getGroupByID(groupID);
+        DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
         ApiFuture<WriteResult> future = groupDocumentReference.update("participantsID", FieldValue.arrayRemove(userID));
         futureCheckerForWriteResults(future);
     }
 
 
 
-    private DocumentReference getGroupByID(String groupID){
+
+    private DocumentReference getGroupReferenceByID(String groupID){
         DocumentReference docRef = firestore.collection("Groups").document(groupID);
         ApiFuture<DocumentSnapshot> future = docRef.get();
         try{
@@ -53,6 +57,32 @@ public class GroupService {
                 throw new InvalidGroupDetailsException("Group does not exist");
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private DocumentSnapshot getGroupSnapshotByID(String groupID){
+        DocumentReference docRef = firestore.collection("Groups").document(groupID);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+        try{
+            DocumentSnapshot groupDocument = future.get();
+            if(groupDocument.exists())
+                return groupDocument;
+            else
+                throw new InvalidGroupDetailsException("Group does not exist");
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Object> getMapOfParticipants(String groupID) {
+        DocumentSnapshot documentSnapshot = getGroupSnapshotByID(groupID);
+
+        List<Object> participantsMap = (List<Object>) documentSnapshot.get("participantsID");
+
+        if (participantsMap == null || participantsMap.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return participantsMap;
         }
     }
 
