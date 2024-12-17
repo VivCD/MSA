@@ -19,7 +19,7 @@ public class Group {
     @Property
     private List<String> participantsID;
     @Property
-    private Boolean active;
+    private boolean active;
     @Property
     private DateTime creationDate;
 
