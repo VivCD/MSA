@@ -51,6 +51,8 @@ public class User {
         this.password = password;
         this.profilePictureUrl = profilePictureUrl;
         this.bio = bio;
+        this.friends = new ArrayList<>();
+        this.pendingRequests = new ArrayList<>();
     }
 
 

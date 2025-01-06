@@ -4,12 +4,16 @@ import com.example.BikeChat.APIResponse.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+
     @Autowired
     private UserService userService;
 
@@ -98,22 +102,34 @@ public class UserController {
     // Get all users
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
+        System.out.println("Accessed /users/all endpoint");
         try {
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
+
+
     @PostMapping("/{username}/sendRequest")
-    public ResponseEntity<ApiResponse> sendFriendRequest(@PathVariable String username, @RequestParam String friendUsername) {
+    public ResponseEntity<ApiResponse> sendFriendRequest(
+            @PathVariable String username, @RequestParam String friendUsername) {
+        System.out.println("DEBUG: Sender username received: " + username);
+        System.out.println("DEBUG: Receiver username received: " + friendUsername);
+
         try {
             userService.sendFriendRequest(username, friendUsername);
             return ResponseEntity.ok(new ApiResponse("Friend request sent.", true));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(new ApiResponse(e.getMessage(), false));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
+            return ResponseEntity.status(500).body(new ApiResponse("Internal Server Error: " + e.getMessage(), false));
         }
     }
+
+
 
     @PostMapping("/{whoAccepts}/acceptRequest")
     public ResponseEntity<ApiResponse> acceptFriendRequest(@RequestParam String usernameWhoSends, @PathVariable String whoAccepts) {
@@ -144,4 +160,23 @@ public class UserController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @GetMapping("/{username}/friendRequests")
+    public ResponseEntity<List<String>> getFriendRequests(@PathVariable String username) {
+        try {
+            List<String> pendingRequests = userService.getPendingRequests(username);
+
+            if (pendingRequests != null && !pendingRequests.isEmpty()) {
+                return ResponseEntity.ok(pendingRequests);
+            } else {
+                return ResponseEntity.ok(new ArrayList<>()); // Return an empty list if no requests
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
+
 }

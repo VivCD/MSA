@@ -1,6 +1,9 @@
 package com.example.BikeChat.APIResponse;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8911f223873bb64ed15272b81030c9e985bfa3d4
 public class ApiResponse {
     private String message;
     private boolean success;
@@ -27,4 +30,8 @@ public class ApiResponse {
     public void setSuccess(boolean success) {
         this.success = success;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 8911f223873bb64ed15272b81030c9e985bfa3d4

@@ -1,9 +1,11 @@
 package com.example.BikeChat.Firebase;
 
 import com.example.BikeChat.User.User;
+import com.example.BikeChat.User.UserRepository;
 import com.example.CustomExceptions.UserNotFoundException;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +16,38 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class FirebaseUserService {
 
-    @Autowired
-    private Firestore firestore;
+    private final Firestore firestore;
 
     public FirebaseUserService(Firestore firestore) {
         this.firestore = firestore;
     }
+
+
+    public User getUserByUsername(String username) {
+        try {
+            System.out.println("Querying Firestore for username: " + username);
+
+            Query query = firestore.collection("users").whereEqualTo("username", username);
+            ApiFuture<QuerySnapshot> future = query.get();
+            QuerySnapshot snapshot = future.get();
+
+            System.out.println("Query snapshot size: " + snapshot.size());
+            if (!snapshot.isEmpty()) {
+                System.out.println("Document data: " + snapshot.getDocuments().get(0).getData());
+                return snapshot.getDocuments().get(0).toObject(User.class);
+            } else {
+                System.err.println("No user found with username: " + username);
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user by username: " + e.getMessage(), e);
+        }
+    }
+
+
+
+
+
 
     public void addUser(User user) {
         DocumentReference docRef = firestore.collection("users").document(String.valueOf(user.getUserID()));
@@ -34,60 +62,66 @@ public class FirebaseUserService {
     }
 
 
-    public void saveUser(User user){
-        DocumentReference docRef =
-                firestore.collection("users").document(user.getUserID().toString());
-        ApiFuture<WriteResult> result = docRef.set(user);
-
-
+    public void saveUser(User user) {
+        try {
+            DocumentReference docRef = firestore.collection("users").document(user.getUserID());
+            ApiFuture<WriteResult> future = docRef.set(user);
+            future.get(); // Ensure the write completes
+            System.out.println("User saved successfully.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error saving user: " + e.getMessage(), e);
+        }
     }
 
-    public User getUserByID(String userID){
-        DocumentReference docRef = firestore.collection("users").document(userID);
-        ApiFuture<DocumentSnapshot> future = docRef.get();
-
+    public User getUserByID(String userID) {
         try {
+            DocumentReference docRef = firestore.collection("users").document(userID);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();
             if (document.exists()) {
                 return document.toObject(User.class);
+            } else {
+                throw new RuntimeException("User with ID " + userID + " not found.");
             }
-            else {
-                throw new UserNotFoundException(userID);
-            }
-        }catch (InterruptedException | ExecutionException e){
-            e.printStackTrace();
-            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user by ID: " + e.getMessage(), e);
         }
     }
 
-    public List<User> getAllUsers(){
-        List<User> users = new ArrayList<>();
-        CollectionReference usersCollection = firestore.collection("users");
-
-        ApiFuture<QuerySnapshot> future = usersCollection.get();
-
+    public List<User> getAllUsers() {
         try {
+            List<User> users = new ArrayList<>();
+            CollectionReference usersCollection = firestore.collection("users");
+            ApiFuture<QuerySnapshot> future = usersCollection.get();
             QuerySnapshot querySnapshot = future.get();
-            for(QueryDocumentSnapshot document : querySnapshot){
-                User user = document.toObject(User.class);
-                users.add(user);
+            for (QueryDocumentSnapshot document : querySnapshot) {
+                System.out.println("User: " + document.getData());
+                users.add(document.toObject(User.class));
             }
             return users;
-
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching all users: " + e.getMessage(), e);
         }
     }
 
+
     private DocumentSnapshot findUserByUsername(String username) throws Exception {
+        System.out.println("Querying Firestore for username: " + username);
+
         Query query = firestore.collection("users").whereEqualTo("username", username);
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot snapshot = future.get();
-        if (snapshot.isEmpty()) {
-            throw new Exception("User with username " + username + " not found.");
+
+        System.out.println("Query snapshot size: " + snapshot.size());
+        if (!snapshot.isEmpty()) {
+            System.out.println("Document data: " + snapshot.getDocuments().get(0).getData());
+            return snapshot.getDocuments().get(0);
+        } else {
+            System.err.println("No user found with username: " + username);
+            throw new RuntimeException("User with username " + username + " not found.");
         }
-        return snapshot.getDocuments().get(0);
     }
+
 
     private void updatePendingRequests(DocumentReference userRef, String senderUsername) throws ExecutionException, InterruptedException {
         ApiFuture<WriteResult> future = userRef.update("pendingRequests", FieldValue.arrayUnion(senderUsername));
@@ -104,7 +138,7 @@ public class FirebaseUserService {
         }
     }
 
-    private void updateFriendsList(DocumentReference userRef,String senderUsername) throws ExecutionException, InterruptedException{
+    private void updateFriendsList(DocumentReference userRef, String senderUsername) throws ExecutionException, InterruptedException {
         ApiFuture<WriteResult> future = userRef.update("friends", FieldValue.arrayUnion(senderUsername));
         future.get();
     }
@@ -114,8 +148,8 @@ public class FirebaseUserService {
         future.get();
     }
 
-    public void acceptFriendRequest(String senderUsername, String receiverUsername){
-        try{
+    public void acceptFriendRequest(String senderUsername, String receiverUsername) {
+        try {
             DocumentSnapshot receiverDocument = findUserByUsername(receiverUsername);
             DocumentSnapshot senderDocument = findUserByUsername(senderUsername);
             removeFromPendingRequests(receiverDocument.getReference(), senderUsername);
@@ -127,13 +161,13 @@ public class FirebaseUserService {
         }
     }
 
-    private void removeFriendFromFriendsList(DocumentReference userRef, String usernameToBeDeleted) throws ExecutionException, InterruptedException{
+    private void removeFriendFromFriendsList(DocumentReference userRef, String usernameToBeDeleted) throws ExecutionException, InterruptedException {
         ApiFuture<WriteResult> future = userRef.update("friends", FieldValue.arrayRemove(usernameToBeDeleted));
         future.get();
     }
 
-    public void removeFriend(String friendWhoDeletes, String friendToBeDeleted){
-        try{
+    public void removeFriend(String friendWhoDeletes, String friendToBeDeleted) {
+        try {
             DocumentSnapshot userWhoDeletes = findUserByUsername(friendWhoDeletes);
             DocumentSnapshot userToBeDeleted = findUserByUsername(friendToBeDeleted);
             removeFriendFromFriendsList(userWhoDeletes.getReference(), friendToBeDeleted);
@@ -143,10 +177,23 @@ public class FirebaseUserService {
         }
     }
 
-    public List<String> returnFriendsList(String username){
-        try{
+    public void deleteUser(String userID) {
+        try {
+            DocumentReference docRef = firestore.collection("users").document(userID);
+            ApiFuture<WriteResult> future = docRef.delete();
+            future.get(); // Ensure the delete completes
+            System.out.println("User deleted successfully.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting user: " + e.getMessage(), e);
+        }
+    }
+
+
+
+    public List<String> returnFriendsList(String username) {
+        try {
             DocumentSnapshot user = findUserByUsername(username);
-            List<String> friends = (List<String>)user.get("friends");
+            List<String> friends = (List<String>) user.get("friends");
             return friends;
 
         } catch (Exception e) {

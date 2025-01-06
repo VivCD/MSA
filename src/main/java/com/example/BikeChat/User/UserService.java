@@ -1,6 +1,7 @@
 package com.example.BikeChat.User;
 
 import com.example.BikeChat.Firebase.FirebaseUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -9,18 +10,25 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private final FirebaseUserService firebaseUserService;
 
-    public UserService(FirebaseUserService firebaseUserService) {
+    private FirebaseUserService firebaseUserService;
+
+    @Autowired
+    public void setFirebaseUserService(FirebaseUserService firebaseUserService) {
         this.firebaseUserService = firebaseUserService;
     }
 
-    public void saveUser(User user) throws Exception {
+
+    public void saveUser(User user) {
         firebaseUserService.saveUser(user);
     }
 
     public User getUser(String id) {
         return firebaseUserService.getUserByID(id);
+    }
+
+    public User getUserByUsername(String username) {
+        return firebaseUserService.getUserByUsername(username);
     }
 
     public List<User> getAllUsers(){
@@ -40,15 +48,23 @@ public class UserService {
     }
 
 
-    private User verifyUsername(String username){
-        List<User> allUsers = new ArrayList<>();
-        allUsers = getAllUsers();
-
-        for(User u : allUsers)
-            if(username.equals(u.getUsername()))
-                return u;
-        return null;
+    private User verifyUsername(String username) {
+        try {
+            User user = firebaseUserService.getUserByUsername(username);
+            if (user == null) {
+                System.err.println("User not found for username: " + username);
+            }
+            if (user == null) {
+                System.err.println("DEBUG: Firebase query returned null for username: " + username);
+            }
+            return user;
+        } catch (Exception e) {
+            System.err.println("Error verifying username: " + username + ". Error: " + e.getMessage());
+            return null;
+        }
     }
+
+
     private boolean verifyPassword(String rawPassword, String hashedPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.matches(rawPassword, hashedPassword);
@@ -63,19 +79,72 @@ public class UserService {
     }
 
     public void sendFriendRequest(String senderUsername, String receiverUsername) throws Exception {
-        firebaseUserService.sendFriendRequest(senderUsername, receiverUsername);
+        User sender = verifyUsername(senderUsername);
+        if (sender == null) {
+            throw new Exception("Sender not found: " + senderUsername);
+        }
+
+        User receiver = verifyUsername(receiverUsername);
+        if (receiver == null) {
+            throw new Exception("Receiver not found: " + receiverUsername);
+        }
+
+        if (receiver.getPendingRequests() == null) {
+            receiver.setPendingRequests(new ArrayList<>());
+        }
+
+        receiver.getPendingRequests().add(senderUsername);
+        firebaseUserService.saveUser(receiver);
     }
 
+
     public void acceptFriendRequest(String senderUsername, String receiverUsername) throws Exception {
-        firebaseUserService.acceptFriendRequest(senderUsername, receiverUsername);
+        User sender = verifyUsername(senderUsername);
+        User receiver = verifyUsername(receiverUsername);
+
+        if (sender.getFriends() == null) {
+            sender.setFriends(new ArrayList<>());
+        }
+        if (receiver.getFriends() == null) {
+            receiver.setFriends(new ArrayList<>());
+        }
+
+        sender.getFriends().add(receiverUsername);
+        receiver.getFriends().add(senderUsername);
+
+        receiver.getPendingRequests().remove(senderUsername);
+        firebaseUserService.saveUser(sender);
+        firebaseUserService.saveUser(receiver);
     }
+
 
     public void deleteFriend(String friendWhoDeletes, String friendWhoIsDeleted) throws Exception{
         firebaseUserService.removeFriend(friendWhoDeletes, friendWhoIsDeleted);
     }
 
-    public List<String> returnFriendsList(String username) throws Exception{
-        return firebaseUserService.returnFriendsList(username);
+    public List<String> returnFriendsList(String username) throws Exception {
+        User user = verifyUsername(username);
+        if (user != null) {
+            return user.getFriends() != null ? user.getFriends() : new ArrayList<>();
+        } else {
+            throw new Exception("User not found");
+        }
     }
+
+
+
+    public List<String> getPendingRequests(String username) throws Exception {
+        User user = verifyUsername(username); // Verify user exists
+        if (user != null) {
+            return user.getPendingRequests(); // Return the list of pending friend requests
+        } else {
+            throw new Exception("User not found");
+        }
+    }
+
+    public void deleteUser(String userID) {
+        firebaseUserService.deleteUser(userID);
+    }
+
 
 }
