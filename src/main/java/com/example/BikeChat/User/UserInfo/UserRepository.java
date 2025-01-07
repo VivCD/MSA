@@ -1,4 +1,4 @@
-package com.example.BikeChat.User;
+package com.example.BikeChat.User.UserInfo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

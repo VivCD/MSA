@@ -1,12 +1,8 @@
 package com.example.BikeChat.Firebase;
 
-import com.example.BikeChat.User.User;
-import com.example.BikeChat.User.UserRepository;
-import com.example.CustomExceptions.UserNotFoundException;
+import com.example.BikeChat.User.UserInfo.User;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -181,7 +177,7 @@ public class FirebaseUserService {
         try {
             DocumentReference docRef = firestore.collection("users").document(userID);
             ApiFuture<WriteResult> future = docRef.delete();
-            future.get(); // Ensure the delete completes
+            future.get();
             System.out.println("User deleted successfully.");
         } catch (Exception e) {
             throw new RuntimeException("Error deleting user: " + e.getMessage(), e);
