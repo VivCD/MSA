@@ -1,4 +1,4 @@
-package com.example.BikeChat.User;
+package com.example.BikeChat.User.UserInfo;
 
 import com.example.BikeChat.Firebase.FirebaseUserService;
 import org.springframework.beans.factory.annotation.Autowired;

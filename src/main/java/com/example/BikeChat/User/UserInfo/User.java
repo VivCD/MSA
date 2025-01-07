@@ -1,4 +1,4 @@
-package com.example.BikeChat.User;
+package com.example.BikeChat.User.UserInfo;
 
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;

@@ -1,6 +1,7 @@
-package com.example.BikeChat.User;
+package com.example.BikeChat.User.UserInfo;
 
 import com.example.BikeChat.APIResponse.ApiResponse;
+import com.example.BikeChat.User.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
