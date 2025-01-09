@@ -17,7 +17,7 @@ public class FirebaseConfig {
     @Bean
     public Firestore firestore() throws IOException {
         FileInputStream serviceAccount =
-                new FileInputStream("C:\\Users\\dumit\\OneDrive\\Desktop\\facultatteee\\an 4\\msa\\MSA SerivceAccount.json");
+                new FileInputStream("C:/Stuff/School/Computer Science/MSA Service Account/MSA SerivceAccount.json");
 
 
         FirebaseOptions options = new FirebaseOptions.Builder()
