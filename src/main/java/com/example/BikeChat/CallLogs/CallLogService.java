@@ -1,6 +1,6 @@
 package com.example.BikeChat.CallLogs;
 
-import com.example.BikeChat.Group.GroupService;
+import com.example.BikeChat.Group.GroupInfo.GroupService;
 import com.example.CustomExceptions.InvalidCallException;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;

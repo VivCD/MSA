@@ -1,5 +1,6 @@
-package com.example.BikeChat.Group;
+package com.example.BikeChat.Group.GroupInfo;
 
+import com.example.BikeChat.User.UserGroups.UserGroupsService;
 import com.example.CustomExceptions.InvalidGroupDetailsException;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -7,43 +8,78 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
 public class GroupService {
     @Autowired
     private Firestore firestore;
+    @Autowired
+    private UserGroupsService userGroupsService;
 
     public GroupService(Firestore firestore){ this.firestore = firestore; }
 
 
-    public void createGroup(Group group){
-        try {
-            marksChecker(group);
+
+
+    public String createGroup(String username, String groupName){
+        Group group = new Group();
+        group = createDetails(username, groupName);
+        String groupId;
+        try{
             ApiFuture<DocumentReference> result = firestore.collection("Groups").add(group);
-            System.out.println("Result: " + result.toString());
+            DocumentReference docRef = result.get();
+            groupId = docRef.getId();
+            userGroupsService.addGroup(groupId, username);
+
+            System.out.println("DocId: " + groupId);
+
+
         } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            throw new RuntimeException(e);
         }
+        return groupId;
     }
 
-    public void joinGroup(String groupID, String userID){
+    public void joinGroup(String groupID, String username){
         DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
-        ApiFuture<WriteResult> future = groupDocumentReference.update("participantsID", FieldValue.arrayUnion(userID));
+        ApiFuture<WriteResult> future = groupDocumentReference.update("participantsUsernames", FieldValue.arrayUnion(username));
         futureCheckerForWriteResults(future);
+        userGroupsService.addGroup(groupID, username);
     }
 
-    public void leaveGroup(String groupID, String userID){
+    public void leaveGroup(String groupID, String username){
         DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
-        ApiFuture<WriteResult> future = groupDocumentReference.update("participantsID", FieldValue.arrayRemove(userID));
+        ApiFuture<WriteResult> future = groupDocumentReference.update("participantsUsernames", FieldValue.arrayRemove(username));
         futureCheckerForWriteResults(future);
+        userGroupsService.deleteGroup(username, groupID);
     }
 
+    public List<Group> searchGroupByName(String groupName){
+        List<Group> groups = new ArrayList<>();
+        try{
+            ApiFuture<QuerySnapshot> query = firestore.collection("Groups")
+                    .whereEqualTo("groupName", groupName)
+                    .get();
+            QuerySnapshot querySnapshot = query.get();
+            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+                Group group = document.toObject(Group.class);
+                group.setGroupID(document.getId());
 
+                groups.add(group);
+            }
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Couldn't search for groups by name.");
+        }
+        return groups;
+    }
+
+    public Group searchGroupByID(String groupId) {
+        DocumentSnapshot docSnap = getGroupSnapshotByID(groupId);
+        return docSnap.toObject(Group.class);
+    }
 
 
     private DocumentReference getGroupReferenceByID(String groupID){
@@ -76,25 +112,28 @@ public class GroupService {
 
     public List<Object> getMapOfParticipants(String groupID) {
         DocumentSnapshot documentSnapshot = getGroupSnapshotByID(groupID);
-
-        List<Object> participantsMap = (List<Object>) documentSnapshot.get("participantsID");
-
-        if (participantsMap == null || participantsMap.isEmpty()) {
-            return new ArrayList<>();
-        } else {
-            return participantsMap;
-        }
+        return (List<Object>) documentSnapshot.get("participantsUsernames");
     }
 
+    private Group createDetails(String username, String groupName){
+        Group group = new Group();
+        group.setCreatorUsername(username);
+        List<String> usernames = new ArrayList<>();
+        usernames.add(username);
+        group.setParticipantsUsernames(usernames);
+        group.setActive(true);
+        group.setGroupName(groupName);
+        return group;
+    }
+
+
     private void marksChecker(Group group){
-        if(group.getHostID().isEmpty() || group.getHostID() == null)
+        if(group.getCreatorUsername().isEmpty() || group.getCreatorUsername() == null)
             throw new InvalidGroupDetailsException("Host ID Invalid!");
-        if(group.getParticipantsID().isEmpty() || group.getParticipantsID()==null)
+        if(group.getParticipantsUsernames().isEmpty() || group.getParticipantsUsernames()==null)
             throw new InvalidGroupDetailsException("Participants list cannot be empty!");
         if(!group.getActive())
             throw new InvalidGroupDetailsException("Upon creation group must be active!");
-        if(group.getCreationDate() == null)
-            throw new InvalidGroupDetailsException("Invalid creation date!");
     }
 
     private void futureCheckerForWriteResults(ApiFuture<WriteResult> future){

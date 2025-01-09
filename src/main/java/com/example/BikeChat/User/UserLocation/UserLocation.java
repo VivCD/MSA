@@ -3,7 +3,9 @@ package com.example.BikeChat.User.UserLocation;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
+import jakarta.persistence.Entity;
 
+@Entity
 public class UserLocation {
     @DocumentId
     private String username;

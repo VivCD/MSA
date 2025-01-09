@@ -1,11 +1,14 @@
-package com.example.BikeChat.Group;
+package com.example.BikeChat.Group.GroupInfo;
+
 
 import com.google.api.client.util.DateTime;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
 
 import java.util.List;
 
@@ -14,14 +17,15 @@ public class Group {
     @DocumentId
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String groupID;
+
+    @Property String groupName;
     @Property
-    private String hostID;
+    private String creatorUsername;
     @Property
-    private List<String> participantsID;
+    private List<String> participantsUsernames;
     @Property
     private boolean active;
-    @Property
-    private DateTime creationDate;
+
 
     public String getGroupID() {
         return groupID;
@@ -31,20 +35,20 @@ public class Group {
         this.groupID = groupID;
     }
 
-    public String getHostID() {
-        return hostID;
+    public String getCreatorUsername() {
+        return creatorUsername;
     }
 
-    public void setHostID(String hostID) {
-        this.hostID = hostID;
+    public void setCreatorUsername(String creatorUsername) {
+        this.creatorUsername = creatorUsername;
     }
 
-    public List<String> getParticipantsID() {
-        return participantsID;
+    public List<String> getParticipantsUsernames() {
+        return participantsUsernames;
     }
 
-    public void setParticipantsID(List<String> participantsID) {
-        this.participantsID = participantsID;
+    public void setParticipantsUsernames(List<String> participantsUsernames) {
+        this.participantsUsernames = participantsUsernames;
     }
 
     public Boolean getActive() {
@@ -55,11 +59,14 @@ public class Group {
         this.active = active;
     }
 
-    public DateTime getCreationDate() {
-        return creationDate;
+
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setCreationDate(DateTime creationDate) {
-        this.creationDate = creationDate;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
+
+
 }
