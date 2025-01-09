@@ -1,5 +1,6 @@
 package com.example.BikeChat.Firebase;
 
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
 import com.example.BikeChat.User.UserInfo.User;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -194,5 +195,17 @@ public class FirebaseUserService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateLocationDiscoverability(String username, Discoverability discoverability){
+        try{
+            DocumentSnapshot docSnap = findUserByUsername(username);
+            DocumentReference docRef = docSnap.getReference();
+            ApiFuture<WriteResult> futureDiscoverability = docRef.update("discoverability", discoverability);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't update location discoverability");
+        }
+
     }
 }

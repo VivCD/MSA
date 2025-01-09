@@ -1,6 +1,7 @@
 package com.example.BikeChat.User.UserInfo;
 
 import com.example.BikeChat.Firebase.FirebaseUserService;
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -146,5 +147,8 @@ public class UserService {
         firebaseUserService.deleteUser(userID);
     }
 
+    public void updateLocationDiscoverability(String username, Discoverability discoverability){
+        firebaseUserService.updateLocationDiscoverability(username, discoverability);
+    }
 
 }
