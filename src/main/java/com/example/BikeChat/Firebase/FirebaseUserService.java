@@ -189,8 +189,7 @@ public class FirebaseUserService {
     public List<String> returnFriendsList(String username) {
         try {
             DocumentSnapshot user = findUserByUsername(username);
-            List<String> friends = (List<String>) user.get("friends");
-            return friends;
+            return (List<String>) user.get("friends");
 
         } catch (Exception e) {
             throw new RuntimeException(e);

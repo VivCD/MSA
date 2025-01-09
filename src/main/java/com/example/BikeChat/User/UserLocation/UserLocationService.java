@@ -1,8 +1,6 @@
 package com.example.BikeChat.User.UserLocation;
 
-import com.example.BikeChat.User.UserInfo.User;
-import com.example.CustomExceptions.InvalidGroupDetailsException;
-import com.example.CustomExceptions.InvalidUserLocationDetails;
+import com.example.CustomExceptions.InvalidUserLocationDetailsException;
 import com.google.api.client.util.DateTime;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
@@ -65,7 +63,7 @@ public class UserLocationService {
             if(userLocationDoc.exists())
                 return userLocationDoc;
             else {
-                throw new InvalidUserLocationDetails("UserLocation does not exist");
+                throw new InvalidUserLocationDetailsException("UserLocation does not exist");
             }
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException("Failed to get the document snapshot for the username");
@@ -86,7 +84,7 @@ public class UserLocationService {
 
             DocumentReference docRef = getUserLocationReference(username);
             if(docRef == null)
-                throw new InvalidUserLocationDetails("UserLocation doesn't exist!");
+                throw new InvalidUserLocationDetailsException("UserLocation doesn't exist!");
             ApiFuture<WriteResult> future = docRef.delete();
             WriteResult result = future.get();
             System.out.println("Document deleted at: " + result.getUpdateTime());
@@ -97,12 +95,12 @@ public class UserLocationService {
 
     private void checkData(String username, double latitude, double longitude){
         if(username.isEmpty())
-            throw new InvalidUserLocationDetails("Invalid username");
+            throw new InvalidUserLocationDetailsException("Invalid username");
         if (latitude < -90 || latitude > 90) {
-            throw new InvalidUserLocationDetails("Invalid latidude");
+            throw new InvalidUserLocationDetailsException("Invalid latidude");
         }
         if (longitude < -180 || longitude > 180) {
-            throw new InvalidUserLocationDetails("Invalid longitude");
+            throw new InvalidUserLocationDetailsException("Invalid longitude");
         }
     }
 }

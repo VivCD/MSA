@@ -1,4 +1,4 @@
-package com.example.BikeChat.Group;
+package com.example.BikeChat.Group.GroupInfo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
