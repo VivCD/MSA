@@ -3,9 +3,7 @@ package com.example.BikeChat.CallLogs;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 
 import java.sql.Time;
 import java.time.Duration;
@@ -14,13 +12,13 @@ import java.util.List;
 
 @Entity
 public class CallLog {
-    @DocumentId
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String callLogID;
 
     @Property
     private String groupID;
-    @Property
+    @ElementCollection
     private List<String> participantsID;
     @Property
     private Instant startTime;

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/groups")
@@ -110,4 +111,24 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
     }
+
+    @GetMapping("/getUserGroups")
+    public ResponseEntity<List<String>> getUserGroups(@RequestParam String username) {
+        try {
+            System.out.println("API called for username: " + username);  // Debug
+
+            List<Group> groups = groupService.getGroupsByParticipant(username);
+            System.out.println("Groups found: " + groups.size());  // Debug
+
+            List<String> groupNames = groups.stream()
+                    .map(Group::getGroupName)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(groupNames);
+        } catch (Exception ex) {
+            ex.printStackTrace();  // Print full error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+    }
+
 }

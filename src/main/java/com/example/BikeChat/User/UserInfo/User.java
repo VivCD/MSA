@@ -2,10 +2,7 @@ package com.example.BikeChat.User.UserInfo;
 
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
@@ -14,7 +11,7 @@ import java.util.List;
 @Entity
 public class User {
 
-    @DocumentId
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String userID;
     @Property
@@ -33,10 +30,10 @@ public class User {
     @Property
     private String bio;
 
-    @Property
+    @ElementCollection
     private List<String> friends = new ArrayList<>();
 
-    @Property
+    @ElementCollection
     private List<String> pendingRequests = new ArrayList<>();
 
 

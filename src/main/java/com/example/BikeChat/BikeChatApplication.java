@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.example.BikeChat"})
+//@ComponentScan(basePackages = {"com.example.BikeChat"})
 public class BikeChatApplication {
 
 	public static void main(String[] args) {
