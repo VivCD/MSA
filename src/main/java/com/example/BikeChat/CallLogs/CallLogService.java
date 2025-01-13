@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 public class CallLogService {
     @Autowired
     private Firestore firestore;
+
     @Autowired
     private GroupService groupService;
 

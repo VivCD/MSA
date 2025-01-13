@@ -1,6 +1,8 @@
 package com.example.BikeChat.User.UserInfo;
 
 import com.example.BikeChat.Firebase.FirebaseUserService;
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
+import com.example.CustomExceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,9 +56,6 @@ public class UserService {
             if (user == null) {
                 System.err.println("User not found for username: " + username);
             }
-            if (user == null) {
-                System.err.println("DEBUG: Firebase query returned null for username: " + username);
-            }
             return user;
         } catch (Exception e) {
             System.err.println("Error verifying username: " + username + ". Error: " + e.getMessage());
@@ -78,44 +77,26 @@ public class UserService {
         return verifyPassword(password, user.getPasswordHash()); // Check password
     }
 
-    public void sendFriendRequest(String senderUsername, String receiverUsername) throws Exception {
-        User sender = verifyUsername(senderUsername);
-        if (sender == null) {
-            throw new Exception("Sender not found: " + senderUsername);
+    public void sendFriendRequestShort(String senderUsername, String receiverUsername){
+        if(verifyUsername(senderUsername) == null){
+            throw new UserNotFoundException("User with username " + senderUsername + "doesn't exist");
         }
-
-        User receiver = verifyUsername(receiverUsername);
-        if (receiver == null) {
-            throw new Exception("Receiver not found: " + receiverUsername);
+        if(verifyUsername(receiverUsername) == null){
+            throw new UserNotFoundException("User with username " + receiverUsername + "doesn't exist");
         }
-
-        if (receiver.getPendingRequests() == null) {
-            receiver.setPendingRequests(new ArrayList<>());
-        }
-
-        receiver.getPendingRequests().add(senderUsername);
-        firebaseUserService.saveUser(receiver);
+        firebaseUserService.sendFriendRequest(senderUsername, receiverUsername);
     }
 
-
-    public void acceptFriendRequest(String senderUsername, String receiverUsername) throws Exception {
-        User sender = verifyUsername(senderUsername);
-        User receiver = verifyUsername(receiverUsername);
-
-        if (sender.getFriends() == null) {
-            sender.setFriends(new ArrayList<>());
+    public void acceptFriendRequestShort(String senderUsername, String receiverUsername){
+        if(verifyUsername(senderUsername) == null){
+            throw new UserNotFoundException("User with username " + senderUsername + "doesn't exist");
         }
-        if (receiver.getFriends() == null) {
-            receiver.setFriends(new ArrayList<>());
+        if(verifyUsername(receiverUsername) == null){
+            throw new UserNotFoundException("User with username " + receiverUsername + "doesn't exist");
         }
-
-        sender.getFriends().add(receiverUsername);
-        receiver.getFriends().add(senderUsername);
-
-        receiver.getPendingRequests().remove(senderUsername);
-        firebaseUserService.saveUser(sender);
-        firebaseUserService.saveUser(receiver);
+        firebaseUserService.acceptFriendRequest(senderUsername, receiverUsername);
     }
+
 
 
     public void deleteFriend(String friendWhoDeletes, String friendWhoIsDeleted) throws Exception{
@@ -146,5 +127,8 @@ public class UserService {
         firebaseUserService.deleteUser(userID);
     }
 
+    public void updateLocationDiscoverability(String username, Discoverability discoverability){
+        firebaseUserService.updateLocationDiscoverability(username, discoverability);
+    }
 
 }

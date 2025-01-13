@@ -1,5 +1,6 @@
 package com.example.BikeChat.User.UserLocation;
 
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
@@ -15,6 +16,7 @@ public class UserLocation {
     private float longitude;
     @Property
     private DateTime creationDate;
+
 
     public String getUsername() {
         return username;
@@ -47,4 +49,6 @@ public class UserLocation {
     public void setCreationDate(DateTime creationDate) {
         this.creationDate = creationDate;
     }
+
+
 }

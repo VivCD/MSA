@@ -2,6 +2,7 @@ package com.example.BikeChat.Group.GroupInfo;
 
 //import com.example.BikeChat.APIResponse.ApiResponse;
 import com.example.BikeChat.CallLogs.CallLogService;
+import com.example.BikeChat.User.UserGroups.UserGroupsService;
 import com.example.CustomExceptions.InvalidCallException;
 import com.example.CustomExceptions.InvalidGroupDetailsException;
 import com.google.api.client.util.DateTime;
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 public class GroupController {
     @Autowired
     GroupService groupService;
+    @Autowired
+    UserGroupsService userGroupsService;
 
     @Autowired
     CallLogService callLogService;
@@ -111,24 +114,13 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
     }
-
     @GetMapping("/getUserGroups")
-    public ResponseEntity<List<String>> getUserGroups(@RequestParam String username) {
+    public ResponseEntity<?> getUserGroups(@RequestParam String username) {
         try {
-            System.out.println("API called for username: " + username);  // Debug
-
-            List<Group> groups = groupService.getGroupsByParticipant(username);
-            System.out.println("Groups found: " + groups.size());  // Debug
-
-            List<String> groupNames = groups.stream()
-                    .map(Group::getGroupName)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(groupNames);
+            List<String> userGroups = userGroupsService.getGroupsOfUser(username);
+            return ResponseEntity.ok(userGroups);
         } catch (Exception ex) {
-            ex.printStackTrace();  // Print full error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
     }
-
 }

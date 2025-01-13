@@ -1,8 +1,11 @@
 package com.example.BikeChat.User.UserInfo;
 
 import com.example.BikeChat.APIResponse.ApiResponse;
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
 import com.example.BikeChat.User.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +21,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Registration endpoint
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> createUser(@RequestBody User user) {
         try {
@@ -50,6 +52,9 @@ public class UserController {
             }
             if (user.getProfilePictureUrl() == null) {
                 user.setProfilePictureUrl("default-profile-picture-url"); // Replace with your default URL
+            }
+            if(user.getLocationDiscoverability() == null){
+                user.setLocationDiscoverability(Discoverability.EVERYONE);
             }
 
             // Save the user to the database
@@ -117,11 +122,9 @@ public class UserController {
     @PostMapping("/{username}/sendRequest")
     public ResponseEntity<ApiResponse> sendFriendRequest(
             @PathVariable String username, @RequestParam String friendUsername) {
-        System.out.println("DEBUG: Sender username received: " + username);
-        System.out.println("DEBUG: Receiver username received: " + friendUsername);
 
         try {
-            userService.sendFriendRequest(username, friendUsername);
+            userService.sendFriendRequestShort(username, friendUsername);
             return ResponseEntity.ok(new ApiResponse("Friend request sent.", true));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(new ApiResponse(e.getMessage(), false));
@@ -135,7 +138,7 @@ public class UserController {
     @PostMapping("/{whoAccepts}/acceptRequest")
     public ResponseEntity<ApiResponse> acceptFriendRequest(@RequestParam String usernameWhoSends, @PathVariable String whoAccepts) {
         try {
-            userService.acceptFriendRequest(usernameWhoSends, whoAccepts);
+            userService.acceptFriendRequestShort(usernameWhoSends, whoAccepts);
             return ResponseEntity.ok(new ApiResponse("Friend request accepted.", true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
@@ -175,6 +178,16 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PutMapping("/updateLocationDiscoverability")
+    public ResponseEntity<String> updateLocationDiscoverability(@RequestParam String username ,@RequestParam Discoverability discoverability){
+        try{
+            userService.updateLocationDiscoverability(username, discoverability);
+            return ResponseEntity.status(HttpStatus.OK).body("Location discoverability updated successfully.");
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.BikeChat.User.UserInfo;
 
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
 import jakarta.persistence.*;
@@ -18,9 +19,6 @@ public class User {
     private String username;
     @Property
     private String email;
-
-
-
     @Property
     private String password;
     @Property
@@ -36,6 +34,8 @@ public class User {
     @ElementCollection
     private List<String> pendingRequests = new ArrayList<>();
 
+    @Property
+    private Discoverability locationDiscoverability;
 
 
     public User() {
@@ -124,5 +124,13 @@ public class User {
 
     public void setPendingRequests(List<String> pendingRequests) {
         this.pendingRequests = pendingRequests;
+    }
+
+    public Discoverability getLocationDiscoverability() {
+        return locationDiscoverability;
+    }
+
+    public void setLocationDiscoverability(Discoverability locationDiscoverability) {
+        this.locationDiscoverability = locationDiscoverability;
     }
 }
