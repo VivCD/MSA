@@ -148,33 +148,6 @@ public class GroupService {
         }
     }
 
-    public List<Group> getGroupsByParticipant(String username) {
-        List<Group> groups = new ArrayList<>();
-        try {
-            System.out.println("Fetching groups for user: " + username);  // Debug
-
-            ApiFuture<QuerySnapshot> query = firestore.collection("Groups")
-                    .whereArrayContains("participantsUsernames", username)
-                    .get();
-
-            QuerySnapshot querySnapshot = query.get();
-            System.out.println("Query result size: " + querySnapshot.size());  // Debug
-
-            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-                System.out.println("Document ID: " + document.getId());  // Debug
-                Group group = document.toObject(Group.class);
-                group.setGroupID(document.getId());
-                groups.add(group);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();  // Print full error
-            throw new RuntimeException("Error fetching groups for user: " + username, e);
-        }
-        return groups;
-    }
-
-
 
 }
 

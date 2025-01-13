@@ -42,7 +42,7 @@ public class UserGroupsService {
         }
     }
 
-    public List<String> getGroupsOfUser(String username, String groupId){
+    public List<String> getGroupsOfUser(String username){
         try{
             DocumentSnapshot userGroupDocRef = getUserGroupsDocumentSnapshot(username);
             return (List<String>) userGroupDocRef.get("groupIds");
