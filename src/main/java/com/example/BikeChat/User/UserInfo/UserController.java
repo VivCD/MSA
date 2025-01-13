@@ -122,11 +122,9 @@ public class UserController {
     @PostMapping("/{username}/sendRequest")
     public ResponseEntity<ApiResponse> sendFriendRequest(
             @PathVariable String username, @RequestParam String friendUsername) {
-        System.out.println("DEBUG: Sender username received: " + username);
-        System.out.println("DEBUG: Receiver username received: " + friendUsername);
 
         try {
-            userService.sendFriendRequest(username, friendUsername);
+            userService.sendFriendRequestShort(username, friendUsername);
             return ResponseEntity.ok(new ApiResponse("Friend request sent.", true));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(new ApiResponse(e.getMessage(), false));
@@ -140,7 +138,7 @@ public class UserController {
     @PostMapping("/{whoAccepts}/acceptRequest")
     public ResponseEntity<ApiResponse> acceptFriendRequest(@RequestParam String usernameWhoSends, @PathVariable String whoAccepts) {
         try {
-            userService.acceptFriendRequest(usernameWhoSends, whoAccepts);
+            userService.acceptFriendRequestShort(usernameWhoSends, whoAccepts);
             return ResponseEntity.ok(new ApiResponse("Friend request accepted.", true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("Error: " + e.getMessage(), false));
