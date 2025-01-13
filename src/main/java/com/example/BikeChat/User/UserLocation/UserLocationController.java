@@ -3,6 +3,7 @@ package com.example.BikeChat.User.UserLocation;
 import com.example.CustomExceptions.InvalidUserLocationDetailsException;
 import com.google.api.client.util.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class UserLocationController {
             @RequestParam String username,
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @RequestParam DateTime creationDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime creationDate) {
         try{
             userLocationService.updateLocation(username, latitude, longitude, creationDate);
             return ResponseEntity.status(HttpStatus.OK).body("Location updated successfully");
