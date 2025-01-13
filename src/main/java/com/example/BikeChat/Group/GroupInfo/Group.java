@@ -5,23 +5,21 @@ import com.google.api.client.util.DateTime;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 
 
 import java.util.List;
 
 @Entity
 public class Group {
-    @DocumentId
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String groupID;
 
     @Property String groupName;
     @Property
     private String creatorUsername;
-    @Property
+    @ElementCollection
     private List<String> participantsUsernames;
     @Property
     private boolean active;
