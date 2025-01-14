@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -17,12 +19,15 @@ public class UserGroupsService {
     @Autowired
     private Firestore firestore;
 
-    public void addGroup(String groupID, String username){
+    public void addGroup(String groupID, String groupName, String username){
         DocumentReference userGroupsDocRef = getUserGroupsDocumentReference(username);
         if(userGroupsDocRef == null) {
             userGroupsDocRef = createUserGroupsDoc(username);
         }
-        ApiFuture<WriteResult> future = userGroupsDocRef.update("groupIds", FieldValue.arrayUnion(groupID));
+        Map<String, String> group = new HashMap<>();
+        group.put("groupId", groupID);
+        group.put("groupName", groupName);
+        ApiFuture<WriteResult> future = userGroupsDocRef.update("groups", FieldValue.arrayUnion(group));
         try{
             System.out.println("User groups updated at: " + future.get().getUpdateTime());
         } catch ( ExecutionException | InterruptedException e){
