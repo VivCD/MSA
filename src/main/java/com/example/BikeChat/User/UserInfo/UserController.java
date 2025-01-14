@@ -108,7 +108,6 @@ public class UserController {
     // Get all users
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
-        System.out.println("Accessed /users/all endpoint");
         try {
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);

@@ -6,6 +6,8 @@ import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.j2objc.annotations.Property;
 import jakarta.persistence.Entity;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class UserLocation {
     @DocumentId
@@ -14,8 +16,7 @@ public class UserLocation {
     private float latitude;
     @Property
     private float longitude;
-    @Property
-    private DateTime creationDate;
+
 
 
     public String getUsername() {
@@ -42,13 +43,6 @@ public class UserLocation {
         this.longitude = longitude;
     }
 
-    public DateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(DateTime creationDate) {
-        this.creationDate = creationDate;
-    }
 
 
 }

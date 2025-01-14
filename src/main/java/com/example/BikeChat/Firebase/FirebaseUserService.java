@@ -22,13 +22,10 @@ public class FirebaseUserService {
 
     public User getUserByUsername(String username) {
         try {
-            System.out.println("Querying Firestore for username: " + username);
-
             Query query = firestore.collection("users").whereEqualTo("username", username);
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot snapshot = future.get();
 
-            System.out.println("Query snapshot size: " + snapshot.size());
             if (!snapshot.isEmpty()) {
                 System.out.println("Document data: " + snapshot.getDocuments().get(0).getData());
                 return snapshot.getDocuments().get(0).toObject(User.class);
@@ -63,7 +60,7 @@ public class FirebaseUserService {
         try {
             DocumentReference docRef = firestore.collection("users").document(user.getUserID());
             ApiFuture<WriteResult> future = docRef.set(user);
-            future.get(); // Ensure the write completes
+            future.get();
             System.out.println("User saved successfully.");
         } catch (Exception e) {
             throw new RuntimeException("Error saving user: " + e.getMessage(), e);
@@ -92,7 +89,6 @@ public class FirebaseUserService {
             ApiFuture<QuerySnapshot> future = usersCollection.get();
             QuerySnapshot querySnapshot = future.get();
             for (QueryDocumentSnapshot document : querySnapshot) {
-                System.out.println("User: " + document.getData());
                 users.add(document.toObject(User.class));
             }
             return users;
@@ -103,13 +99,11 @@ public class FirebaseUserService {
 
 
     private DocumentSnapshot findUserByUsername(String username) throws Exception {
-        System.out.println("Querying Firestore for username: " + username);
 
         Query query = firestore.collection("users").whereEqualTo("username", username);
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot snapshot = future.get();
 
-        System.out.println("Query snapshot size: " + snapshot.size());
         if (!snapshot.isEmpty()) {
             System.out.println("Document data: " + snapshot.getDocuments().get(0).getData());
             return snapshot.getDocuments().get(0);
