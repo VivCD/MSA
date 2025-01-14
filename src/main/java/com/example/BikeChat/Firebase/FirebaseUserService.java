@@ -105,7 +105,6 @@ public class FirebaseUserService {
         QuerySnapshot snapshot = future.get();
 
         if (!snapshot.isEmpty()) {
-            System.out.println("Document data: " + snapshot.getDocuments().get(0).getData());
             return snapshot.getDocuments().get(0);
         } else {
             System.err.println("No user found with username: " + username);
@@ -195,10 +194,26 @@ public class FirebaseUserService {
         try{
             DocumentSnapshot docSnap = findUserByUsername(username);
             DocumentReference docRef = docSnap.getReference();
-            ApiFuture<WriteResult> futureDiscoverability = docRef.update("discoverability", discoverability);
+            ApiFuture<WriteResult> futureDiscoverability = docRef.update("locationDiscoverability", discoverability);
 
         } catch (Exception e) {
             throw new RuntimeException("Couldn't update location discoverability");
+        }
+
+    }
+    public Discoverability checkDiscoverabilityOfUser(String username){
+        try{
+            DocumentSnapshot user = findUserByUsername(username);
+            String s = (String) user.get("locationDiscoverability");
+            return switch (s) {
+                case "EVERYONE" -> Discoverability.EVERYONE;
+                case "FRIENDS" -> Discoverability.FRIENDS;
+                case "NOONE" -> Discoverability.NOONE;
+                default -> throw new IllegalStateException("Unexpected value: " + s);
+            };
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
     }

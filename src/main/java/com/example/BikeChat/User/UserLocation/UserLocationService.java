@@ -1,22 +1,27 @@
 package com.example.BikeChat.User.UserLocation;
 
+import com.example.BikeChat.Firebase.FirebaseUserService;
+import com.example.BikeChat.SimpleClasses.Enums.Discoverability;
+import com.example.BikeChat.User.UserInfo.User;
 import com.example.CustomExceptions.InvalidUserLocationDetailsException;
-import com.google.api.client.util.DateTime;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static com.example.BikeChat.SimpleClasses.Enums.Discoverability.EVERYONE;
 
 @Service
 public class UserLocationService {
     @Autowired
     private Firestore firestore;
+    @Autowired
+    private FirebaseUserService firebaseUserService;
     private static final double EARTH_RADIUS = 6371e3;
 
     public void updateLocation(String username, double latitude, double longitude ){
@@ -31,8 +36,6 @@ public class UserLocationService {
         List<ApiFuture<WriteResult>> futures = List.of(futureLat, futureLong);
         try{
             List<WriteResult> results = ApiFutures.allAsList(futures).get();
-//            for(WriteResult r : results)
-//                System.out.println("Update Successfull at: " + r.getUpdateTime());
 
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException("Failed to update the details of userLocation");
@@ -94,8 +97,7 @@ public class UserLocationService {
 
     public List<UserLocation> getUserLocations(String username){
         UserLocation requestingUserLocation  = getRequestingUserLocation(username);
-        List<UserLocation> nearbyUsers = getNearbyLocations(requestingUserLocation.getLatitude(), requestingUserLocation.getLongitude());
-        return  nearbyUsers;
+        return getNearbyLocations(requestingUserLocation.getLatitude(), requestingUserLocation.getLongitude(), username);
 
     }
 
@@ -107,7 +109,7 @@ public class UserLocationService {
         return requestingUserLocation;
     }
 
-    private List<UserLocation> getNearbyLocations(float latitude, float longitude){
+    private List<UserLocation> getNearbyLocations(double latitude, double longitude, String requestingUser){
         double latDistance = 100 / EARTH_RADIUS;
         double lonDistance = 100 / (EARTH_RADIUS * Math.cos(Math.toRadians(latitude)));
 
@@ -118,6 +120,12 @@ public class UserLocationService {
 
         System.out.println("Latitude Range: " + latMin + " to " + latMax);
         System.out.println("Longitude Range: " + lonMin + " to " + lonMax);
+
+        List<String> friendsOfRequestingUser = firebaseUserService.returnFriendsList(requestingUser);
+        System.out.println("Friends of "+ requestingUser);
+        for(String s : friendsOfRequestingUser)
+            System.out.println(s);
+
 
 
         List<UserLocation> locations = new ArrayList<>();
@@ -134,18 +142,38 @@ public class UserLocationService {
             for (DocumentSnapshot docSnap : querySnapshot.get().getDocuments()) {
                 System.out.println("Document ID: " + docSnap.getId());
                 UserLocation location = docSnap.toObject(UserLocation.class);
-                if (location != null && calculateHaversineDistance(latitude, longitude, location.getLatitude(), location.getLongitude()) <= 100) {
+                if (location != null && calculateHaversineDistance(latitude, longitude, location.getLatitude(), location.getLongitude()) <= 100 && !docSnap.getId().equals(requestingUser)) {
                     location.setUsername(docSnap.getId());
-                    locations.add(location);
+                    if(checkIfUserCanBeShown(friendsOfRequestingUser, docSnap.getId()))
+                        locations.add(location);
                     System.out.println("Added Location: " + location);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error querying nearby locations", e);
+            throw new RuntimeException( e);
         }
         return locations;
     }
+
+    private boolean checkIfUserCanBeShown(List<String> friends, String nearbyUser){
+        Discoverability discoverability = firebaseUserService.checkDiscoverabilityOfUser(nearbyUser);
+        return switch (discoverability) {
+            case EVERYONE -> true;
+            case FRIENDS -> checkIfFriends(friends, nearbyUser);
+            case NOONE -> false;
+        };
+    }
+
+    private boolean checkIfFriends(List<String> friends, String nearbyUser){
+        for(String s : friends)
+            if(s.equals(nearbyUser)) {
+                return true;
+            }
+        return false;
+    }
+
+
+
 
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -155,7 +183,7 @@ public class UserLocationService {
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS * c; // Distance in meters
+        return EARTH_RADIUS * c;
     }
 
     private CollectionReference getCollectionReference() {

@@ -13,9 +13,9 @@ public class UserLocation {
     @DocumentId
     private String username;
     @Property
-    private float latitude;
+    private double latitude;
     @Property
-    private float longitude;
+    private double longitude;
 
 
 
@@ -27,7 +27,7 @@ public class UserLocation {
         this.username = username;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
@@ -35,7 +35,7 @@ public class UserLocation {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
