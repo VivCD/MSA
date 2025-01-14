@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class UserGroups {
@@ -14,7 +15,7 @@ public class UserGroups {
     private String username;
 
     @ElementCollection
-    private List<String> groupIds;
+    private List<Map<String, String>> groups;
 
     public String getUsername() {
         return username;
@@ -24,11 +25,11 @@ public class UserGroups {
         this.username = username;
     }
 
-    public List<String> getGroupIds() {
-        return groupIds;
+    public List<Map<String, String>> getGroupIds() {
+        return groups;
     }
 
-    public void setGroupIds(List<String> groupIds) {
-        this.groupIds = groupIds;
+    public void setGroupIds(List<Map<String, String>> groupIds) {
+        this.groups = groupIds;
     }
 }

@@ -31,7 +31,7 @@ public class GroupService {
             ApiFuture<DocumentReference> result = firestore.collection("Groups").add(group);
             DocumentReference docRef = result.get();
             groupId = docRef.getId();
-            userGroupsService.addGroup(groupId, username);
+            userGroupsService.addGroup(groupId, groupName, username);
 
             System.out.println("DocId: " + groupId);
 
@@ -44,9 +44,11 @@ public class GroupService {
 
     public void joinGroup(String groupID, String username){
         DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
+        DocumentSnapshot groupDocumentSnapshout = getGroupSnapshotByID(groupID);
+        String groupName = (String) groupDocumentSnapshout.get("groupName");
         ApiFuture<WriteResult> future = groupDocumentReference.update("participantsUsernames", FieldValue.arrayUnion(username));
         futureCheckerForWriteResults(future);
-        userGroupsService.addGroup(groupID, username);
+        userGroupsService.addGroup(groupID, groupName, username);
     }
 
     public void leaveGroup(String groupID, String username){
