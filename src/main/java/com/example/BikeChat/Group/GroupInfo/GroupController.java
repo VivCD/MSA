@@ -1,6 +1,7 @@
 package com.example.BikeChat.Group.GroupInfo;
 
-//import com.example.BikeChat.APIResponse.ApiResponse;
+
+import com.example.BikeChat.APIResponse.ApiResponse;
 import com.example.BikeChat.CallLogs.CallLogService;
 import com.example.BikeChat.User.UserGroups.UserGroupsService;
 import com.example.CustomExceptions.InvalidCallException;
@@ -65,18 +66,19 @@ public class GroupController {
     }
 
     @PostMapping("/initiateCall")
-    public ResponseEntity<String> initiateCall(@RequestParam String groupID){
-        try{
+    public ResponseEntity<ApiResponse> initiateCall(@RequestParam String groupID) {
+        try {
             String callID = callLogService.initiateCall(groupID);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Call initiated successfully with ID: " + callID);
-        } catch (InvalidGroupDetailsException ex){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        } catch (RuntimeException ex){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse("Call initiated successfully with ID: " + callID, true));
+        } catch (InvalidGroupDetailsException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(ex.getMessage(), false));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(ex.getMessage(), false));
         }
     }
-
-
 
     @PostMapping("/leaveCall")
     public ResponseEntity<String> leaveCall(@RequestParam String callLogID, @RequestParam String userID){
@@ -87,6 +89,18 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
         catch (RuntimeException ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+        }
+    }
+
+    @PostMapping("/endCall")
+    public ResponseEntity<String> endCall(@RequestParam String callLogID) {
+        try {
+            callLogService.leaveCall(callLogID, "FORCE_END");
+            return ResponseEntity.status(HttpStatus.OK).body("Call ended successfully");
+        } catch (InvalidCallException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
     }

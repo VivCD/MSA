@@ -21,12 +21,16 @@ public class CallLogService {
     @Autowired
     private GroupService groupService;
 
+    //am modificat asta pt ca nu imi dadea id ul la call
+
     public String saveCallLog(CallLog callLog){
         ApiFuture<DocumentReference> result = firestore.collection("Logs").add(callLog);
         try {
-            result.get();
-            System.out.println("Call log saved with ID: " + callLog.getCallLogID());
-            return callLog.getCallLogID();
+            DocumentReference docRef = result.get();
+            String id = docRef.getId();  // Get the generated document ID
+            callLog.setCallLogID(id);    // Set the ID to the CallLog object
+            System.out.println("Call log saved with ID: " + id);
+            return id;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
