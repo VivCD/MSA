@@ -131,4 +131,15 @@ public class UserService {
         firebaseUserService.updateLocationDiscoverability(username, discoverability);
     }
 
+    public void updateBio(String username, String bio){
+        firebaseUserService.updateBio(username, bio);
+    }
+    public void updateEmail(String username, String email){
+        firebaseUserService.updateEmail(username, email);
+    }
+    public void updateProfilePicture(String username, String profilePictureUrl){
+        firebaseUserService.updateProfilePicture(username, profilePictureUrl);
+    }
+
+
 }
