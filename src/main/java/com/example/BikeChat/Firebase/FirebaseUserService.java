@@ -217,4 +217,33 @@ public class FirebaseUserService {
         }
 
     }
+
+    public void updateBio(String username, String bio){
+        try{
+            DocumentSnapshot docSnap = findUserByUsername(username);
+            DocumentReference docRef = docSnap.getReference();
+            ApiFuture<WriteResult> futureDiscoverability = docRef.update("bio", bio);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateEmail(String username, String email){
+        try{
+            DocumentSnapshot docSnap = findUserByUsername(username);
+            DocumentReference docRef = docSnap.getReference();
+            ApiFuture<WriteResult> futureDiscoverability = docRef.update("email", email);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void updateProfilePicture(String username, String profilePicture){
+        try{
+            DocumentSnapshot docSnap = findUserByUsername(username);
+            DocumentReference docRef = docSnap.getReference();
+            ApiFuture<WriteResult> futureDiscoverability = docRef.update("profilePictureUrl", profilePicture);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

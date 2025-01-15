@@ -190,6 +190,47 @@ public class UserController {
         }
     }
 
+    @PutMapping("/updateBio")
+    public ResponseEntity<String> updateBio(@RequestParam String username ,@RequestParam String bio){
+        try{
+            userService.updateBio(username, bio);
+            return ResponseEntity.status(HttpStatus.OK).body("Bio updated successfully.");
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
+    @PutMapping("/updateEmail")
+    public ResponseEntity<String> updateEmail(@RequestParam String username ,@RequestParam String email){
+        try{
+            userService.updateEmail(username, email);
+            return ResponseEntity.status(HttpStatus.OK).body("Email updated successfully.");
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/updateProfilePicture")
+    public ResponseEntity<String> updateProfilePicture(@RequestParam String username ,@RequestParam String profilePictureUrl){
+        try{
+            userService.updateProfilePicture(username, profilePictureUrl);
+            return ResponseEntity.status(HttpStatus.OK).body("Location discoverability updated successfully.");
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getUserByUsername")
+    public ResponseEntity<?> getUserByUsername(@RequestParam String username){
+        try{
+            return ResponseEntity.ok(userService.getUserByUsername(username));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+
+        }
+    }
+
 
 
 }
