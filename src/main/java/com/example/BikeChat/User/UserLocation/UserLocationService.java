@@ -122,18 +122,17 @@ public class UserLocationService {
         System.out.println("Longitude Range: " + lonMin + " to " + lonMax);
 
         List<String> friendsOfRequestingUser = firebaseUserService.returnFriendsList(requestingUser);
-        System.out.println("Friends of "+ requestingUser);
         for(String s : friendsOfRequestingUser)
             System.out.println(s);
 
 
 
         List<UserLocation> locations = new ArrayList<>();
-        Query query = getCollectionReference()
-                .whereGreaterThanOrEqualTo("latitude", latMin)
-                .whereLessThanOrEqualTo("latitude", latMax)
-                .whereGreaterThanOrEqualTo("longitude", lonMin)
-                .whereLessThanOrEqualTo("longitude", lonMax);
+        Query query = getCollectionReference();
+//                .whereGreaterThanOrEqualTo("latitude", latMin)
+//                .whereLessThanOrEqualTo("latitude", latMax)
+//                .whereGreaterThanOrEqualTo("longitude", lonMin)
+//                .whereLessThanOrEqualTo("longitude", lonMax);
 
         try {
             ApiFuture<QuerySnapshot> querySnapshot = query.get();
@@ -142,12 +141,18 @@ public class UserLocationService {
             for (DocumentSnapshot docSnap : querySnapshot.get().getDocuments()) {
                 System.out.println("Document ID: " + docSnap.getId());
                 UserLocation location = docSnap.toObject(UserLocation.class);
-                if (location != null && calculateHaversineDistance(latitude, longitude, location.getLatitude(), location.getLongitude()) <= 100 && !docSnap.getId().equals(requestingUser)) {
-                    location.setUsername(docSnap.getId());
-                    if(checkIfUserCanBeShown(friendsOfRequestingUser, docSnap.getId()))
-                        locations.add(location);
-                    System.out.println("Added Location: " + location);
-                }
+                if (location != null) {
+                    if (calculateHaversineDistance(latitude, longitude, location.getLatitude(), location.getLongitude()) <= 500)
+
+                        if (!docSnap.getId().equals(requestingUser)) {
+                            location.setUsername(docSnap.getId());
+                            if (checkIfUserCanBeShown(friendsOfRequestingUser, docSnap.getId())) {
+                                locations.add(location);
+                                System.out.println("Added Location: " + location);
+                            } else System.out.println("User cannot be shown!");
+                        } else System.out.println("docSnap ID is equals with username!");
+                    else System.out.println("Haversine distance too big!");
+                } else System.out.println("Location is null!");
             }
         } catch (Exception e) {
             throw new RuntimeException( e);
