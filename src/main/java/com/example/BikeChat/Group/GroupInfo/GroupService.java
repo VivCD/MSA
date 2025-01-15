@@ -44,8 +44,8 @@ public class GroupService {
 
     public void joinGroup(String groupID, String username){
         DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
-        DocumentSnapshot groupDocumentSnapshout = getGroupSnapshotByID(groupID);
-        String groupName = (String) groupDocumentSnapshout.get("groupName");
+        DocumentSnapshot groupDocumentSnapshot = getGroupSnapshotByID(groupID);
+        String groupName = (String) groupDocumentSnapshot.get("groupName");
         ApiFuture<WriteResult> future = groupDocumentReference.update("participantsUsernames", FieldValue.arrayUnion(username));
         futureCheckerForWriteResults(future);
         userGroupsService.addGroup(groupID, groupName, username);
@@ -53,9 +53,11 @@ public class GroupService {
 
     public void leaveGroup(String groupID, String username){
         DocumentReference groupDocumentReference = getGroupReferenceByID(groupID);
+        DocumentSnapshot groupDocumentSnapshot = getGroupSnapshotByID(groupID);
+        String groupName = (String) groupDocumentSnapshot.get("groupName");
         ApiFuture<WriteResult> future = groupDocumentReference.update("participantsUsernames", FieldValue.arrayRemove(username));
         futureCheckerForWriteResults(future);
-        userGroupsService.deleteGroup(username, groupID);
+        userGroupsService.deleteGroup(username, groupID, groupName);
     }
 
     public List<Group> searchGroupByName(String groupName){

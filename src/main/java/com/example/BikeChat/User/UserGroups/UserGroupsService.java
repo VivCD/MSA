@@ -35,11 +35,16 @@ public class UserGroupsService {
         }
     }
 
-    public void deleteGroup(String username, String groupId){
+    public void deleteGroup(String username, String groupId, String groupName){
         DocumentReference userGroupDocRef = getUserGroupsDocumentReference(username);
         if(userGroupDocRef == null)
             throw new InvalidUserGroupsDetailsException("User groups document doesn't exist.");
-        ApiFuture <WriteResult> future = userGroupDocRef.update("groupIds", FieldValue.arrayRemove(groupId));
+
+        Map<String, String> group = new HashMap<>();
+        group.put("groupId", groupId);
+        group.put("groupName", groupName);
+
+        ApiFuture <WriteResult> future = userGroupDocRef.update("groups", FieldValue.arrayRemove(group));
         try{
             System.out.println("User groups updated at: " + future.get().getUpdateTime());
         } catch ( ExecutionException | InterruptedException e){
