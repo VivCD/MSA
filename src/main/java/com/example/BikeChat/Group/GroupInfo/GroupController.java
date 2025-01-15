@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -131,7 +132,7 @@ public class GroupController {
     @GetMapping("/getUserGroups")
     public ResponseEntity<?> getUserGroups(@RequestParam String username) {
         try {
-            List<String> userGroups = userGroupsService.getGroupsOfUser(username);
+            List<Map<String, String>> userGroups = userGroupsService.getGroupsOfUser(username);
             return ResponseEntity.ok(userGroups);
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());

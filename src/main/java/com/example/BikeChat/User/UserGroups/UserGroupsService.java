@@ -47,10 +47,10 @@ public class UserGroupsService {
         }
     }
 
-    public List<String> getGroupsOfUser(String username){
+    public List<Map<String, String>> getGroupsOfUser(String username){
         try{
             DocumentSnapshot userGroupDocRef = getUserGroupsDocumentSnapshot(username);
-            return (List<String>) userGroupDocRef.get("groupIds");
+            return (List<Map<String, String>>) userGroupDocRef.get("groups");
         } catch (Exception e){
             throw new RuntimeException("Couldn't get the groups of user");
         }
