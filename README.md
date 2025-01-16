@@ -1,3 +1,6 @@
+FRONTEND GIT LINK:
+https://github.com/VivCD/MSA_FrontEnd
+
 1. Project Proposal: A Communication App for Motorcyclists
  
 Objective: The aim of this project is to develop an innovative communication app specifically designed for motorcyclists. The app will allow bikers to communicate seamlessly with each other and with their passengers during rides, enhancing safety, coordination, and overall riding experience.
